@@ -1,37 +1,38 @@
-import getpass
 import subprocess
 import mysql.connector
 import os
+import datetime
 
 # Connection with the database
-access_db = {
+access_database = {
     "host": "localhost",
     "user": "root",
-    "password": "admin",
-    "database": "test"
+    "password": "admin"
 }
 
 # --> Routes
 # We get the root of the project folder
-folder_principal = os.path.dirname(__file__)
+parent_folder = os.path.dirname(__file__)
 
-folder_backup = os.path.join(folder_principal, "backup")
+backup_folder = os.path.join(parent_folder, "backup")
 
 
 class DataBase:
     # Connection and cursor
     def __init__(self, **kwargs):
         """
-        The above function initializes a MySQL connector and cursor using the provided keyword
-        arguments.
+        The above function initializes a MySQL connector object and sets the cursor, user, and password
+        attributes.
         """
         self.connector = mysql.connector.connect(**kwargs)
         self.cursor = self.connector.cursor()
+        self.user = kwargs["user"]
+        self.password = kwargs["password"]  # obtain dictionary value
 
     # Decorator for server data report
-    def report_db(func):
-        def wrapper(self, name_db):
-            func(self, name_db)
+    def report_database(func):
+        def wrapper(self, name_database):
+            func(self, name_database)
             print(f"These are the database that the server has: ")
             DataBase.show_db(self)
         return wrapper
@@ -48,9 +49,9 @@ class DataBase:
         return self.cursor
 
     # Show databases
-    def show_db(self):
+    def show_databases(self):
         """
-        The function `show_db` retrieves and prints a list of all databases in the current database
+        The function `show_databases` retrieves and prints a list of all databases in the current database
         server.
         """
         self.cursor.execute("SHOW DATABASES")
@@ -58,39 +59,50 @@ class DataBase:
             print(db)
 
     # Method for creating databases
-    @report_db
-    def create_db(self, name_db):
+    @report_database
+    def create_database(self, name_database):
         """
         The function creates a database with the given name if it doesn't already exist and prints a success
         message, otherwise it prints an error message and shows the existing databases.
 
-        :param name_db: The parameter `name_db` is a string that represents the name of the database that
+        :param name_database: The parameter `name_database` is a string that represents the name of the database that
         you want to create
         """
         try:
-            self.cursor.execute(f"CREATE DATABASE IF NOT EXISTS {name_db}")
-            print(f"The database {name_db} has been created successfully.")
+            self.cursor.execute(
+                f"CREATE DATABASE IF NOT EXISTS {name_database}")
+            print(
+                f"The database {name_database} has been created successfully.")
         except:
-            print(f"The database '{name_db}' has not been created")
+            print(f"The database '{name_database}' has not been created")
 
     # Method for deleting databases
-    @report_db
-    def eliminate_db(self, name_db):
+    @report_database
+    def delete_database(self, name_database):
         """
-        The function `eliminate_db` is used to delete a database and display a list of available databases
+        The function `delete_database` is used to delete a database and display a list of available databases
         if the specified database is not found.
 
-        :param name_db: The parameter `name_db` is the name of the database that you want to
+        :param name_database: The parameter `name_database` is the name of the database that you want to
         eliminate/delete
         """
         try:
-            self.cursor.execute(f"DROP DATABASE {name_db}")
-            print(f"The database was deleted {name_db} correctly.")
+            self.cursor.execute(f"DROP DATABASE {name_database}")
+            print(f"The database was deleted {name_database} correctly.")
         except:
-            print(f"The database '{name_db}' not found.")
+            print(f"The database '{name_database}' not found.")
 
     # Create database backups
-    def copy_db(self, name_db):
-        with open(f'{folder_backup}/{name_db}.sql', 'w') as out:
+    def copy_database(self, name_database):
+        """
+        The function `copy_database` creates a backup of a MySQL database by using the `mysqldump` command and
+        saving the output to a file.
+
+        :param name_database: The `name_database` parameter is the name of the database that you want to copy
+        """
+        # Get the current date and time
+        date_time = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        print(date_time)
+        with open(f'{backup_folder}/{name_database}_{date_time}.sql', 'w') as out:
             subprocess.Popen(
-                f'"C:/Program Files/MySQL/MySQL Workbench 8.0 CE/"mysqldump --user=root --password={getpass.getpass()} --databases {name_db}', shell=True, stdout=out)
+                f'"C:/Program Files/MySQL/MySQL Workbench 8.0 CE/"mysqldump --user={self.user} --password={self.password} --databases {name_database}', shell=True, stdout=out)
