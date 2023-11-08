@@ -26,7 +26,7 @@ class DataBase:
     def report_db(func):
         def wrapper(self, name_db):
             func(self, name_db)
-            print(f"These are the database that the server has:")
+            print(f"These are the database that the server has: ")
             DataBase.show_db(self)
         return wrapper
 
