@@ -1,4 +1,4 @@
-import database as sqldb
+import db.database as sqldb
 
 data_base = sqldb.DataBase(**sqldb.access_db)
 
