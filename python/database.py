@@ -8,7 +8,7 @@ access_db = {
     "host": "localhost",
     "user": "root",
     "password": "admin",
-    "database": "libreria_cf"
+    "database": "test"
 }
 
 
