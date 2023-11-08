@@ -1,15 +1,21 @@
+import getpass
+import subprocess
 import mysql.connector
+import os
 
 # Connection with the database
-# The `access_db` dictionary is storing the connection details for the MySQL database. It includes the
-# host, user, password, and database name. These details are used to establish a connection with the
-# database in the `DataBase` class.
 access_db = {
     "host": "localhost",
     "user": "root",
     "password": "admin",
     "database": "test"
 }
+
+# --> Routes
+# We get the root of the project folder
+folder_principal = os.path.dirname(__file__)
+
+folder_backup = os.path.join(folder_principal, "backup")
 
 
 class DataBase:
@@ -82,3 +88,9 @@ class DataBase:
             print(f"The database was deleted {name_db} correctly.")
         except:
             print(f"The database '{name_db}' not found.")
+
+    # Create database backups
+    def copy_db(self, name_db):
+        with open(f'{folder_backup}/{name_db}.sql', 'w') as out:
+            subprocess.Popen(
+                f'"C:/Program Files/MySQL/MySQL Workbench 8.0 CE/"mysqldump --user=root --password={getpass.getpass()} --databases {name_db}', shell=True, stdout=out)
