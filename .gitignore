@@ -1,5 +1,5 @@
 /.vscode
-.gitignore
+/.gitignore
 /__pycache__/
-/python/db/__pycache__
+/python/db/__pycache__/
 /python/db/backup/*
